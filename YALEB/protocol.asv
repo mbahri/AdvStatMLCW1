@@ -1,0 +1,64 @@
+clear; clc; %close all
+
+load YaleB_32x32;
+
+[nSmp,nFea] = size(fea);
+fea1 = zeros(nSmp, 4*nFea);
+for ii = 1:nSmp
+    temp = fea(ii,:);
+    temp = reshape(temp, 32, 32);
+    temp = imresize(temp, 2);
+    temp = temp(:);
+    fea1(ii,:) = temp;
+end
+
+[nSmp,nFea] = size(fea1);
+
+error = [];
+for jj = 1:20  %%%
+    jj
+    
+    eval(['load ext_YALE/5Train/5Train/' num2str(jj)]);
+
+
+    fea_Train = fea1(trainIdx,:);
+    fea_Test = fea1(testIdx,:);
+
+    gnd_Train = gnd(trainIdx);
+    gnd_Test = gnd(testIdx);
+
+     eigvector = myGONPP(fea_Train.', 190-38, gnd_Train);
+
+    oldfea = conj(fea_Train)*eigvector;
+    newfea = conj(fea_Test)*eigvector;
+
+    mg = mean(oldfea, 1);
+    mg_oldfea = repmat(mg,  size(oldfea,1), 1);
+    %oldfea = oldfea - mg_oldfea;
+
+    %mg = mean(newfea, 1);
+    mg_newfea = repmat(mg,  size(newfea,1), 1);
+    %newfea = newfea - mg_newfea;
+
+    correct = zeros(1, size(newfea, 2));
+    for ii = 1:5:size(newfea, 2)
+        ii;
+        Sample = newfea(:, 1:ii);
+        Training = oldfea(:, 1:ii);
+        Group = gnd_Train;
+        k = 1;
+        distance = 'cosine';
+        %Class = knnclassify([real(Sample) imag(Sample)], [real(Training) imag(Training)], Group, k, distance);
+        Class = knnclassify(Sample, Training , Group, k, distance);
+
+        correct(ii) = length(find(Class-gnd_Test == 0));
+    end
+
+    correct = correct./length(gnd_Test);
+    error = [error; 1- correct];
+    %figure; plot(error)
+
+end
+
+error_GONPP_Yale = error;
+save error_GONPP_Yale.mat error_GONPP_Yale
