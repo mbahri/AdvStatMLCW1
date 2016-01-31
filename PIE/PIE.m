@@ -28,7 +28,7 @@ for jj = 1:20
     fea_Test = fea1(TestIdx,:);
     gnd_Test = gnd(TestIdx);
 
-      U_reduc = eye(size(64*64,64*64));  %%change it to PCA, LDA, etc
+    U_reduc = eye(size(64*64,64*64));  %%change it to PCA, LDA, etc
 
     oldfea = fea_Train*U_reduc;
     newfea = fea_Test*U_reduc;
