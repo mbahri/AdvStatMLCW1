@@ -26,7 +26,7 @@ for jj = 1:20  %%%run for 20 random pertrurbations
     gnd_Train = gnd(trainIdx);
     gnd_Test = gnd(testIdx);
 
-    U_reduc = pcomp(fea_Train);  %%change it to PCA, LDA, etc
+    U_reduc = pcomp(fea_Train, 'no');  %%change it to PCA, LDA, etc
 
     oldfea = fea_Train*U_reduc;  %%training data 
     
