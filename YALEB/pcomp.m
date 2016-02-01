@@ -1,30 +1,21 @@
 function [ basis, values ] = pcomp( data, scale)
 %PCOMP Returns the change of basis matrix for PCA
-    % Compute the mean-centered matrix of the observations
-    
-%     function [V newX D] = myPCA(X)
-%         X = bsxfun(@minus, X, mean(X,1));           %# zero-center
-%         C = (X'*X)./(size(X,1)-1);                  %'# cov(X)
-% 
-%         [V D] = eig(C);
-%         [D order] = sort(diag(D), 'descend');       %# sort cols high to low
-%         V = V(:,order);
-% 
-%         newX = X*V(:,1:end);
-%     end
 
+    % Compute the mean-centered matrix of the observations
     U = bsxfun(@minus, data, mean(data));
-    [basis, L] = eig(U'*U/(size(U,1) - 1), 'vector');
-    [L, Indi] = sort(L, 'descend');
     
+    % Find the eigenvectors and eigenvalues of the covariance matrix
+    [B, L, ~] = svd(U'*U/(size(U,1) - 1));
+    
+    % Whitened PCA: rescale the basis by the inverse of the square root of
+    % diag(eigenvalues)
     switch scale
         case 'no'
-            basis = basis(:,Indi);
+            basis = B;
         case 'yes'
-            basis = basis(:,Indi);
-            basis = basis * diag(L)^-(1/2);
+            basis = B * L^-(1/2);
         otherwise
-            basis = basis(:,Indi);
+            basis = B;
     end
     
     values = L;
