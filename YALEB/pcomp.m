@@ -1,23 +1,14 @@
-function [ basis, values ] = pcomp( data, scale)
-%PCOMP Returns the change of basis matrix for PCA
+function [ basis ] = pcomp( data, scale )
+%PCOMP Performs PCA on the data
+%   Calls pcomp_std or pcomp_trick depending on the shape of the data
 
-    % Compute the mean-centered matrix of the observations
-    U = bsxfun(@minus, data, mean(data));
+    N = size(data, 1);
+    F = size(data, 2);
     
-    % Find the eigenvectors and eigenvalues of the covariance matrix
-    [B, L, ~] = svd(U'*U/(size(U,1) - 1));
-    
-    % Whitened PCA: rescale the basis by the inverse of the square root of
-    % diag(eigenvalues)
-    switch scale
-        case 'no'
-            basis = B;
-        case 'yes'
-            basis = B * L^-(1/2);
-        otherwise
-            basis = B;
+    if N > F
+        basis = pcomp_std(data, scale);
+    else
+        basis = pcomp_trick(data, scale);
     end
-    
-    values = L;
 end
 

@@ -1,12 +1,15 @@
-function [ basis, values ] = lda( obs, labels )
+ function [ W ] = lda( obs, labels )
 %LDA Performs Fisher linear discriminant analysis
     % Compute the mean-centered matrix of the observations
     
     % We first group the observations by class. This is already the case
     % for YaleB but it might not be true in general.
-    data = sortrows([labels, obs]);
-    data = data(:,2:end);
-    
+%     data = sortrows([labels, obs]);
+%     labels = data(:,1);
+%     data = data(:,2:end);
+
+    data = obs;
+
     % Here we use the "unique" function to get the start index of the
     % different classes.
     [~, b, ~] = unique(labels);
@@ -20,49 +23,37 @@ function [ basis, values ] = lda( obs, labels )
     % (which is full of zeros since it computes the diff for the pair x, x)
     % but on the diagonal right above the main.
     cardinals = diag(pdist2(b, b), -1);
-
-    % Split the data matrix into submatrices (one for each class), here we
-    % provide the number of rows to retain in each array
-    classmats = mat2cell(data, cardinals);
     
     % Quantities of interest:
-    K = length(cardinals);  % Number of classes
     F = size(data, 2);      % Number of features
-    
+    N = size(data, 1);      % Number of observations
+    C = size(cardinals, 1); % Number of classes
     % Global mean
     mu = mean(data);
-    % Class means
-    classmeans = cellfun(@mean, classmats, 'UniformOutput', 0);
+    % Mean-centered data
+    X = bsxfun(@minus, data, mu); X = X';
     
-    % Compute between-class scatter matrix by summing the individual
-    % matrices
-    Sb = zeros(F, F);
-    for i = 1:K
-        Scatt = (classmeans{i} - mu);
-        Sb = Sb + Scatt'*Scatt;
-    end
+    % Compute the matrix M
+    E_matrices = arrayfun(@(N)(ones(N,1)*ones(1,N)/N), cardinals, ...
+        'UniformOutput', 0);
+    M = blkdiag(E_matrices{:});
     
-    % Compute within-class scatter matrices, avoid recomputing the means,
-    % divides by the cardinals
-    cardcell = mat2cell(cardinals, ones(1,K));
-    scattermats = cellfun(@scatter, classmats, classmeans, cardcell,'UniformOutput', 0);
+    % Compute Xw
+    Xw = X*(eye(N,N) - M);
     
-    % Within-class scatter matrix as the sum of all the individual matrices
-    Sw = zeros(F, F);
-    for i = 1:K
-        Sw = Sw + scattermats{i};
-    end
-    
-    % Eigenvalue decomposition of Sw^-1 * Sb, we use pinv to avoid issues,
+    % Eigenvalue decomposition of Xw'*Xw,
     % using svd might be more numerically stable.
-    [ basis, values, ~ ] = svd(pinv(Sw) * Sb);
-end
-
-function [U] = center(mat, mu)
-    U = bsxfun(@minus, mat, mu);
-end
-
-function [U] = scatter(mat, mu, card)
-    cent = center(mat, mu);
-    U = (cent' * cent) / card;
-end
+    [ Vw, Lw, ~ ] = svd(Xw'*Xw);
+    Vw = Vw(:,1:end-C);
+    Lw = Lw(1:end-C, 1:end-C);
+    
+    % U
+    U = Xw * Vw * Lw^-1;
+    % Xb and Q = Vb
+    Xb = U'*X*M;
+    [ Vb, ~, ~ ] = svd(Xb*Xb');
+    Vb = Vb(:,1:C-1);
+    
+    % W
+    W = U*Vb;
+ end

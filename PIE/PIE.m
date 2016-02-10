@@ -1,5 +1,8 @@
 clear; clc; close all
 
+% Suppress annoying warnings about deprecated function
+warning('off', 'bioinfo:knnclassify:incompatibility');
+
 load Train5_64;
 load fea64;
 load gnd64;
@@ -12,7 +15,7 @@ fea1 = fea;
 
 
 error = [];
-dim =2000; %%check recognition rate every dim dimensions (change it appropriatly for PCA, LDA etc
+dim =5; %%check recognition rate every dim dimensions (change it appropriatly for PCA, LDA etc
 for jj = 1:20
     jj
 
@@ -28,7 +31,12 @@ for jj = 1:20
     fea_Test = fea1(TestIdx,:);
     gnd_Test = gnd(TestIdx);
 
-    U_reduc = eye(size(64*64,64*64));  %%change it to PCA, LDA, etc
+    %U_reduc = eye(size(64*64,64*64));  %%change it to PCA, LDA, etc
+    %[U_reduc, ~] = lda(fea_Train, gnd_Train);
+    fprintf('Computing the transformation matrix.\n');
+%     [U_reduc, ~] = pcomp1(fea_Train, 'yes');
+    U_reduc = lda(fea_Train, gnd_Train);
+
 
     oldfea = fea_Train*U_reduc;
     newfea = fea_Test*U_reduc;
@@ -43,6 +51,7 @@ for jj = 1:20
     len     = 1:dim:size(newfea, 2);
     correct = zeros(1, length(1:dim:size(newfea, 2)));
     for ii = 1:length(len)  %%for each dimension perform classification
+        fprintf('Computing classification rate - iteration %d\n', ii);
         ii;
         Sample = newfea(:, 1:len(ii));
         Training = oldfea(:, 1:len(ii));

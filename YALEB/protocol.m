@@ -1,5 +1,8 @@
 clear; clc; %close all
 
+% Suppress annoying warnings about deprecated function
+warning('off', 'bioinfo:knnclassify:incompatibility');
+
 load YaleB_32x32;
 
 [nSmp,nFea] = size(fea);
@@ -14,9 +17,15 @@ end
 
 [nSmp,nFea] = size(fea1);
 
-error = []; dim =50; %%check recognition rate every dim dimensions (change it appropriatly for PCA, LDA etc)
+h1 = waitbar(0,'Global');
+h2 = waitbar(0,'Current permutation');
+
+error = []; dim =10; %%check recognition rate every dim dimensions (change it appropriatly for PCA, LDA etc)
 for jj = 1:20  %%%run for 20 random pertrurbations
-    jj
+    waitbar(0, h2, 'Current permutation');
+    waitbar(jj/20, h1, sprintf('Global: permutation %d/20', jj));
+    jj;
+    fprintf('Iteration %d\n', jj);
     
     eval(['load 5Train/' num2str(jj)]); %%% load the pertrurbation number jj
 
@@ -26,8 +35,13 @@ for jj = 1:20  %%%run for 20 random pertrurbations
     gnd_Train = gnd(trainIdx);
     gnd_Test = gnd(testIdx);
 
-    U_reduc = pcomp(fea_Train, 'no');  %%change it to PCA, LDA, etc
+    fprintf('Computing the transformation matrix.\n');
+%     U_reduc = pcomp1(fea_Train, 'yes');  %%change it to PCA, LDA, etc
+%     U_reduc = lda(fea_Train, gnd_Train);
+    U_reduc = lpp_heat(fea_Train, 5, 1e7, false);
+    fprintf('Done.\n');
 
+    
     oldfea = fea_Train*U_reduc;  %%training data 
     
     newfea = fea_Test*U_reduc;   %%test data
@@ -42,6 +56,8 @@ for jj = 1:20  %%%run for 20 random pertrurbations
     len     = 1:dim:size(newfea, 2);
     correct = zeros(1, length(1:dim:size(newfea, 2)));
     for ii = 1:length(len)  %%for each dimension perform classification
+        waitbar(ii/length(len), h2, sprintf('Current: iteration %d/%d', ii, length(len)));
+%         fprintf('Computing classification rate - iteration %d\n', ii);
         ii;
         Sample = newfea(:, 1:len(ii));
         Training = oldfea(:, 1:len(ii));
@@ -55,7 +71,12 @@ for jj = 1:20  %%%run for 20 random pertrurbations
 
     correct = correct./length(gnd_Test); %%compute the correct classification rate
     error = [error; 1- correct];
+    
+    fprintf('Done.\n');
 
 end
+
+close(h1);
+close(h2);
 
 plot(mean(error,1)); %%plotting the error 
