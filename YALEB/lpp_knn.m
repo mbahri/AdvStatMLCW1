@@ -27,13 +27,11 @@
     D = diag(sum(S,1)); % Find D
     
     SqD = D^(1/2);      % Square root of D
+        
+    [V,L,~] = svd(SqD*X*(X')*SqD);
+    U = X' * SqD * V * L^-1;
     
-    X = X';
-    
-    [V,L,~] = svd(SqD*(X')*X*SqD);
-    U = X * SqD * V * L^-1;
-    
-    Xp = U'*X;
+    Xp = U'*X';
     [Q, ~, ~] = svd(Xp*(D-S)*Xp');
     
     % Reverse the vectors

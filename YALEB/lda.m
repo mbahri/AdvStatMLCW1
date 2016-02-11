@@ -31,7 +31,7 @@
     % Global mean
     mu = mean(data);
     % Mean-centered data
-    X = bsxfun(@minus, data, mu); X = X';
+    X = bsxfun(@minus, data, mu);
     
     % Compute the matrix M
     E_matrices = arrayfun(@(N)(ones(N,1)*ones(1,N)/N), cardinals, ...
@@ -39,7 +39,7 @@
     M = blkdiag(E_matrices{:});
     
     % Compute Xw
-    Xw = X*(eye(N,N) - M);
+    Xw = X'*(eye(N,N) - M);
     
     % Eigenvalue decomposition of Xw'*Xw,
     % using svd might be more numerically stable.
@@ -50,7 +50,7 @@
     % U
     U = Xw * Vw * Lw^-1;
     % Xb and Q = Vb
-    Xb = U'*X*M;
+    Xb = U'*X'*M;
     [ Vb, ~, ~ ] = svd(Xb*Xb');
     Vb = Vb(:,1:C-1);
     

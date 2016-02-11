@@ -26,13 +26,11 @@
     
     % Square root of D
     SqD = D^(1/2);
+        
+    [V,L,~] = svd(SqD*X*(X')*SqD);
+    U = X' * SqD * V * L^-1;
     
-    X = X';
-    
-    [V,L,~] = svd(SqD*(X')*X*SqD);
-    U = X * SqD * V * L^-1;
-    
-    Xp = U'*X;
+    Xp = U'*X';
     [Q, ~, ~] = svd(Xp*(D-S)*Xp');
     
     % Reverse the vectors
