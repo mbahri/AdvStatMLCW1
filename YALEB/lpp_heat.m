@@ -1,4 +1,4 @@
- function [ W ] = lpp_heat( obs, K, T, center)
+ function [ W ] = lpp_heat( obs, T, center)
 %LPP Locality preserving projections with heat kernel
     %   T = 1e7 works well
         
@@ -13,28 +13,19 @@
     else
         X = obs;
     end
-    
-    % Construct S and D
-    S = zeros(N,N);
-    % Find indices of the K nearest neighbours of each element and their
-    % distances
-%     [Neig, Dist] = knnsearch(X,X,'K',K,'Distance','cosine');
-    [Neig, Dist] = knnsearch(X,X,'K',K);
+        
+    % Distances squared
+    DotProd = X*X';
+    NormsSq = repmat(diag(DotProd),1,N);
 
-    % Heat kernel
-    Dist = exp(- (Dist .^ 2) / T);
-
-    % Set S(i,j) to 1 if j is a neighbour of i
-    for i=1:N
-       for j=2:size(Neig,2)
-           k = Neig(i,j);
-           S(i,k) = Dist(i,j);
-       end
-    end
-    S = (S + S') / 2;       % Make S symmetric
-    D = diag(sum(S > 0,1)); % Find D
+    Dist = NormsSq + NormsSq' - 2 * DotProd;
     
-    SqD = D^(1/2);      % Square root of D
+    % Construct S with heat kernel and D by summing
+    S = exp(- Dist / T) - eye(N,N); % Remove the ones on the diagonal
+    D = diag(sum(S,1));             % Find D
+    
+    % Square root of D
+    SqD = D^(1/2);
     
     X = X';
     
