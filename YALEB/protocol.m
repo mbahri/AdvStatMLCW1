@@ -20,7 +20,7 @@ end
 h1 = waitbar(0,'Global');
 h2 = waitbar(0,'Current permutation');
 
-error = []; dim =5; %%check recognition rate every dim dimensions (change it appropriatly for PCA, LDA etc)
+error = []; dim =1; %%check recognition rate every dim dimensions (change it appropriatly for PCA, LDA etc)
 for jj = 1:20  %%%run for 20 random pertrurbations
     waitbar(0, h2, 'Current permutation');
     waitbar(jj/20, h1, sprintf('Global: permutation %d/20', jj));
@@ -37,8 +37,8 @@ for jj = 1:20  %%%run for 20 random pertrurbations
 
     fprintf('Computing the transformation matrix.\n');
 %     U_reduc = pcomp(fea_Train, 'yes');  %%change it to PCA, LDA, etc
-    U_reduc = lda(fea_Train, gnd_Train);
-%     U_reduc = lpp_heat(fea_Train, 1e7, false);
+%     U_reduc = lda(fea_Train, gnd_Train);
+    U_reduc = lpp_heat(fea_Train, 1e7, false);
 %     U_reduc = lpp_knn(fea_Train, 7, false);
 
     fprintf('Done.\n');
