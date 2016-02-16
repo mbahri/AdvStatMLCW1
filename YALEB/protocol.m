@@ -20,7 +20,7 @@ end
 h1 = waitbar(0,'Global');
 h2 = waitbar(0,'Current permutation');
 
-error = []; dim =1; %%check recognition rate every dim dimensions (change it appropriatly for PCA, LDA etc)
+error = []; dim =5; %%check recognition rate every dim dimensions (change it appropriatly for PCA, LDA etc)
 for jj = 1:20  %%%run for 20 random pertrurbations
     waitbar(0, h2, 'Current permutation');
     waitbar(jj/20, h1, sprintf('Global: permutation %d/20', jj));

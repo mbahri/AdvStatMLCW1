@@ -35,8 +35,9 @@ for jj = 1:20
     %[U_reduc, ~] = lda(fea_Train, gnd_Train);
     fprintf('Computing the transformation matrix.\n');
 %     [U_reduc, ~] = pcomp1(fea_Train, 'yes');
-    U_reduc = lda(fea_Train, gnd_Train);
-
+%     U_reduc = lda(fea_Train, gnd_Train);
+%     U_reduc = lpp_heat(fea_Train, 1e7, false);
+    U_reduc = lpp_knn(fea_Train, 150, false);
 
     oldfea = fea_Train*U_reduc;
     newfea = fea_Test*U_reduc;
