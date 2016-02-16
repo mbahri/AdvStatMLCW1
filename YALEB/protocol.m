@@ -38,8 +38,9 @@ for jj = 1:20  %%%run for 20 random pertrurbations
     fprintf('Computing the transformation matrix.\n');
 %     U_reduc = pcomp(fea_Train, 'yes');  %%change it to PCA, LDA, etc
 %     U_reduc = lda(fea_Train, gnd_Train);
-    U_reduc = lpp_heat(fea_Train, 1e7, false);
+%     U_reduc = lpp_heat(fea_Train, 1e7, false);
 %     U_reduc = lpp_knn(fea_Train, 7, false);
+    U_reduc = fastica1(fea_Train);
 
     fprintf('Done.\n');
 

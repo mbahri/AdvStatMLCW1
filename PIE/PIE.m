@@ -37,7 +37,8 @@ for jj = 1:20
 %     [U_reduc, ~] = pcomp1(fea_Train, 'yes');
 %     U_reduc = lda(fea_Train, gnd_Train);
 %     U_reduc = lpp_heat(fea_Train, 1e7, false);
-    U_reduc = lpp_knn(fea_Train, 150, false);
+%     U_reduc = lpp_knn(fea_Train, 150, false);
+    U_reduc = fastica1(fea_Train);
 
     oldfea = fea_Train*U_reduc;
     newfea = fea_Test*U_reduc;

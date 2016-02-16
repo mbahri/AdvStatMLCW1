@@ -33,15 +33,17 @@
         % Loop until WW doesn't change from an iteration to another
         while norm(WW - WWp) > e && k < MAXITER
             k = k + 1;
-            fprintf('Iteration %d for %d\n', k, i);
-            fprintf('%f\n', norm(WW - WWp));
+%             fprintf('Iteration %d for %d\n', k, i);
+%             fprintf('%f\n', norm(WW - WWp));
             % Update the copy
             WWp = WW;
-            fprintf('WWp: %f\n', norm(WWp));
+%             fprintf('WWp: %f\n', norm(WWp));
             % Avoids computing this product twice
             Y = WW'*X;
             % Newton step
-            WW = (X*tanh(Y)' - (OO' - (tanh(Y).^2))*OO*WW)/N;
+%             WW = (X*tanh(Y)' - (OO' - (tanh(Y).^2))*OO*WW)/N;
+            WW = (X*(Y.^4)' - (4*Y.^3)*OO*WW)/N;
+
             % Gram-Schmidt step
             for j = 1:(i-1)
 %                 fprintf('Orthogonalizing wrt %d\n', j);
@@ -52,8 +54,12 @@
         end
         if k >= MAXITER
             fprintf('Max number of iterations reached.\n');
+%         else
+%             fprintf('Converged in %d iterations\n', k);
         end
         % Update the matrix
         W(:,i) = WW;
     end
+%     S = (W'*X)'*whiteningMatrix';
+    W = (W * whiteningMatrix')';
  end
