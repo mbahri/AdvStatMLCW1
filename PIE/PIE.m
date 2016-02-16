@@ -1,5 +1,7 @@
 clear; clc; close all
 
+addpath('../Implem/')
+
 % Suppress annoying warnings about deprecated function
 warning('off', 'bioinfo:knnclassify:incompatibility');
 
@@ -35,10 +37,10 @@ for jj = 1:20
     %[U_reduc, ~] = lda(fea_Train, gnd_Train);
     fprintf('Computing the transformation matrix.\n');
 %     [U_reduc, ~] = pcomp1(fea_Train, 'yes');
-%     U_reduc = lda(fea_Train, gnd_Train);
-%     U_reduc = lpp_heat(fea_Train, 1e7, false);
+     %U_reduc = lda(fea_Train, gnd_Train);
+     U_reduc = lpp_heat(fea_Train, 1e7, false);
 %     U_reduc = lpp_knn(fea_Train, 150, false);
-    U_reduc = fastica1(fea_Train);
+    %U_reduc = fastica1(fea_Train);
 
     oldfea = fea_Train*U_reduc;
     newfea = fea_Test*U_reduc;
@@ -53,7 +55,7 @@ for jj = 1:20
     len     = 1:dim:size(newfea, 2);
     correct = zeros(1, length(1:dim:size(newfea, 2)));
     for ii = 1:length(len)  %%for each dimension perform classification
-        fprintf('Computing classification rate - iteration %d\n', ii);
+        fprintf('[%d] - Computing class. rate - iteration %d\n', jj, ii);
         ii;
         Sample = newfea(:, 1:len(ii));
         Training = oldfea(:, 1:len(ii));
