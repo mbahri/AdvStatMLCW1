@@ -16,13 +16,10 @@ function basis = pcomp_trick( data, scale)
     
     % Whitened PCA: rescale the basis by the inverse of the square root of
     % diag(eigenvalues)
-    switch scale
-        case 'no'
-            basis = Phi * L^-(1/2);
-        case 'yes'
-            basis = Phi * L^-1;
-        otherwise
-            basis = Phi * L^-(1/2);
-    end    
+    if scale
+        basis = Phi * L^-1;
+    else
+        basis = Phi * L^-(1/2);
+    end
 end
 

@@ -1,4 +1,4 @@
-clear; clc; close all
+clear; clc; close all force
 
 addpath('../Implem/')
 
@@ -15,11 +15,16 @@ Train = Train5_64; clear Train5_64;
 
 fea1 = fea;
 
+% Waitbars to show progress
+h1 = waitbar(0,'Global');
+h2 = waitbar(0,'Current permutation');
+
+dim =5; %%check recognition rate every dim dimensions (change it appropriatly for PCA, LDA etc
 
 error = [];
-dim =5; %%check recognition rate every dim dimensions (change it appropriatly for PCA, LDA etc
 for jj = 1:20
-    jj
+    waitbar(0, h2, 'Current permutation');
+    waitbar(jj/20, h1, sprintf('Global: permutation %d/20', jj));
 
     TrainIdx = Train(jj, :);
     TestIdx = 1:size(fea, 1);
@@ -33,14 +38,15 @@ for jj = 1:20
     fea_Test = fea1(TestIdx,:);
     gnd_Test = gnd(TestIdx);
 
-    %U_reduc = eye(size(64*64,64*64));  %%change it to PCA, LDA, etc
-    %[U_reduc, ~] = lda(fea_Train, gnd_Train);
-    fprintf('Computing the transformation matrix.\n');
-%     [U_reduc, ~] = pcomp1(fea_Train, 'yes');
-     %U_reduc = lda(fea_Train, gnd_Train);
-     U_reduc = lpp_heat(fea_Train, 1e7, false);
-%     U_reduc = lpp_knn(fea_Train, 150, false);
-    %U_reduc = fastica1(fea_Train);
+    fprintf('[%d] - Computing the transformation matrix.\n', jj);
+    U_reduc = pcomp(fea_Train, 'whiten', true);
+%     U_reduc = pcomp(fea_Train);
+%     U_reduc = lda(fea_Train, gnd_Train);
+%     U_reduc = lpp_heat(fea_Train);
+%     U_reduc = lpp_knn(fea_Train, 'k', 7);
+%     U_reduc = fastica_lowdim(fea_Train);
+    
+    fprintf('[%d] - Matrix computation done.\n', jj);
 
     oldfea = fea_Train*U_reduc;
     newfea = fea_Test*U_reduc;
@@ -55,6 +61,7 @@ for jj = 1:20
     len     = 1:dim:size(newfea, 2);
     correct = zeros(1, length(1:dim:size(newfea, 2)));
     for ii = 1:length(len)  %%for each dimension perform classification
+        waitbar(ii/length(len), h2, sprintf('Current: iteration %d/%d', ii, length(len)));
         fprintf('[%d] - Computing class. rate - iteration %d\n', jj, ii);
         ii;
         Sample = newfea(:, 1:len(ii));
@@ -71,5 +78,10 @@ for jj = 1:20
     error = [error; 1- correct];
   
 end
+
+fprintf('Max score: %f\n', max(correct));
+
+close(h1);
+close(h2);
 
 plot(mean(error,1)); %%plotting the error 

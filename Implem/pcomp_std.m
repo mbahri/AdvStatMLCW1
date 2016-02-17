@@ -9,13 +9,10 @@ function basis = pcomp_std( data, scale)
     
     % Whitened PCA: rescale the basis by the inverse of the square root of
     % diag(eigenvalues)
-    switch scale
-        case 'no'
-            basis = B;
-        case 'yes'
-            basis = B * L^-(1/2);
-        otherwise
-            basis = B;
-    end    
+    if scale
+        basis = B * L^-(1/2);
+    else
+        basis = B;
+    end
 end
 
