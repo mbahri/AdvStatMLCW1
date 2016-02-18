@@ -77,7 +77,7 @@ Xp = U'*X';
 [Q, ~, ~] = svd(Xp*(D-S)*Xp');
 
 % Reverse the vectors, we need the smallest eigen values/vectors first
-Ind = 190:-1:1;
+Ind = size(Q,2):-1:1;
 Q = Q(:,Ind);
 
 % Final transformation matrix

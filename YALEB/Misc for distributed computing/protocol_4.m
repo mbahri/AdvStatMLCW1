@@ -23,7 +23,7 @@ end
 h1 = waitbar(0,'Global');
 h2 = waitbar(0,'Current permutation');
 
-dim = 5; %%check recognition rate every dim dimensions (change it appropriatly for PCA, LDA etc)
+dim = 1; %%check recognition rate every dim dimensions (change it appropriatly for PCA, LDA etc)
 
 error = [];
 for jj = 1:20  %%%run for 20 random pertrurbations
@@ -39,11 +39,11 @@ for jj = 1:20  %%%run for 20 random pertrurbations
     gnd_Test = gnd(testIdx);
 
     fprintf('[%d] - Computing the transformation matrix.\n', jj);
+    %U_reduc = pcomp(fea_Train);
 %     U_reduc = pcomp(fea_Train, 'whiten', true);
-%     U_reduc = pcomp(fea_Train);
-    U_reduc = lda(fea_Train, gnd_Train);
+%     U_reduc = lda(fea_Train, gnd_Train);
 %     U_reduc = lpp_heat(fea_Train);
-%     U_reduc = lpp_knn(fea_Train, 'k', 7);
+     U_reduc = lpp_knn(fea_Train, 'k', 7);
 %     U_reduc = fastica_lowdim(fea_Train);
 
     fprintf('[%d] - Matrix computation done.\n', jj);
@@ -84,5 +84,6 @@ fprintf('Max score: %f\n', max(correct));
 
 close(h1);
 close(h2);
-save(   
+
 plot(mean(error,1)); %%plotting the error 
+save('correct_lpp_knn_7.mat', 'correct', 'error');

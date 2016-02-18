@@ -74,8 +74,6 @@ for i = 1:NIC
     % Counter for the number of iterations
     k = 0;
     
-    fprintf('%d ', i);
-
     % ith independent component
     WW = W(:,i);
     % Copy to allow comparison between two iterations

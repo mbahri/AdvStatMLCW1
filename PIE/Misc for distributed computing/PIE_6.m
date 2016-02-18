@@ -39,12 +39,12 @@ for jj = 1:20
     gnd_Test = gnd(TestIdx);
 
     fprintf('[%d] - Computing the transformation matrix.\n', jj);
-%     U_reduc = pcomp(fea_Train, 'whiten', true);
+    %U_reduc = pcomp(fea_Train, 'whiten', true);
 %     U_reduc = pcomp(fea_Train);
 %     U_reduc = lda(fea_Train, gnd_Train);
-    U_reduc = lpp_heat(fea_Train);
+%     U_reduc = lpp_heat(fea_Train);
 %     U_reduc = lpp_knn(fea_Train, 'k', 7);
-%     U_reduc = fastica_lowdim(fea_Train);
+     U_reduc = fastica_lowdim(fea_Train);
     
     fprintf('[%d] - Matrix computation done.\n', jj);
 
@@ -85,3 +85,6 @@ close(h1);
 close(h2);
 
 plot(mean(error,1)); %%plotting the error 
+correct_ica = correct;
+error_ica = error;
+save('correct_ica.mat', 'correct_ica', 'error_ica');
