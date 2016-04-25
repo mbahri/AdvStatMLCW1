@@ -84,5 +84,4 @@ fprintf('Max score: %f\n', max(correct));
 
 close(h1);
 close(h2);
-save(   
 plot(mean(error,1)); %%plotting the error 
