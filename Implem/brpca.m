@@ -1,7 +1,7 @@
 function [ Uc, Ur, T, E ] = brpca( X, lambda, r )
 
 % FOR TESTING ONLY!!!
-warning('off','all')
+%warning('off','all')
 
 %BRPCA Solves bilinear robust PCA via ALM
 % min ||Uc|| + ||Ur|| + sum(labmda_n*||En||_1)
@@ -38,7 +38,7 @@ rho = 1.5 ;
 % Convergence
 converged = false;
 niter = 0;
-MAXITER = 2;
+MAXITER = 10;
 tol = 1e-5;
 
 while ~converged && niter<MAXITER
@@ -48,18 +48,20 @@ while ~converged && niter<MAXITER
     Uc_num = @(X, Y, E, T) ((mu * X + Y - mu*E)*Ur*T');
     Uc_denom = @(T) (mu*T*(Ur'*Ur)*T');
     
-    Uc = cellsum(cellfun(Uc_num, X, Y, E, T, 'UniformOutput', false))*...
-        pinv(2*Ir + cellsum(cellfun(Uc_denom, T, 'UniformOutput', false)));
+    Uc = cellsum(cellfun(Uc_num, X, Y, E, T, 'UniformOutput', false))/...
+        (2*Ir + cellsum(cellfun(Uc_denom, T, 'UniformOutput', false)));
     
     % Then Ur
     Ur_num = @(X, Y, E, T) ((mu * X' - Y' - mu*E')*Uc*T);
     Ur_denom = @(T) (mu*T'*(Uc'*Uc)*T);
     
-    Ur = cellsum(cellfun(Ur_num, X, Y, E, T, 'UniformOutput', false))*...
-        pinv(2*Ir + cellsum(cellfun(Ur_denom, T, 'UniformOutput', false)));
+    Ur = cellsum(cellfun(Ur_num, X, Y, E, T, 'UniformOutput', false))/...
+        (2*Ir + cellsum(cellfun(Ur_denom, T, 'UniformOutput', false)));
     
     % Now update T
-    solve_for_T = @(Y, X, E) reshape(kron(Ur, Uc)\reshape((Y / mu + X - E), m*n, 1), r, r);
+    K = pinv(kron(Ur, Uc));
+%     solve_for_T = @(Y, X, E) reshape(K\reshape(( (1/mu)*Y + X - E), m*n, 1), r, r);
+    solve_for_T = @(Y, X, E) reshape(K*reshape(( (1/mu)*Y + X - E), m*n, 1), r, r);
     T = cellfun(solve_for_T, Y, X, E, 'UniformOutput', false);
     
     % Update E
